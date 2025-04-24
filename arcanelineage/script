@@ -1,36 +1,298 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-
 local Window = Rayfield:CreateWindow({
-    Name = "Arcane Lineage",
-    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-    LoadingTitle = "CGS HUB",
-    LoadingSubtitle = "by Ipnu",
-    Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
- 
-    DisableRayfieldPrompts = false,
-    DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
- 
+    Name = "Arcane Lineage GUI",
+    LoadingTitle = "Arcane Lineage Script",
+    LoadingSubtitle = "by AsepDullahan",
     ConfigurationSaving = {
-       Enabled = false,
-       FolderName = nil, -- Create a custom folder for your hub/game
-       FileName = "Big D"
+        Enabled = false,
+        FolderName = nil, -- Create a custom folder for your hub/game
+        FileName = "Example Hub"
     },
- 
     Discord = {
-       Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-       Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
-       RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+        Enabled = false,
+        Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
+        RememberJoins = true -- Set this to false to make them join the discord every time they load it up
     },
- 
     KeySystem = false, -- Set this to true to use our key system
     KeySettings = {
-       Title = "Untitled",
-       Subtitle = "Key System",
-       Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
-       FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-       SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-       GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-       Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+        Title = "",
+        Subtitle = "",
+        Note = "",
+        FileName = "", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+        SaveKey = false, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+        GrabKeyFromSite = true, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+        Key = {"hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
     }
- })
+})
+
+-- ///////////////////// FUNCTION ////////////////////
+
+local function autoDodgeLoop() -- Fungsi Auto Dodge
+    while _G.AutoDodge do
+        pcall(function()
+            local args = {
+                [1] = true,
+                [2] = true
+            }
+            local eventName = "DodgeMinigame"
+            local remote = game:GetService("ReplicatedStorage").Remotes.Information.RemoteFunction
+            remote:FireServer(args, eventName)
+            print("[EXPLOIT] Auto Dodge Activated!")
+        end)
+        wait(0.05)
+    end
+end
+
+------------------------------------------------------
+
+local function autoAttackLoop()
+    while _G.AutoAttack do
+        pcall(function()
+            for _, enemy in pairs(game:GetService("Workspace").Living:GetChildren()) do
+                if enemy:FindFirstChild("HumanoidRootPart") and not game.Players:FindFirstChild(enemy.Name) then
+                    local attackType = "Attack"
+                    local attackName = "Strike"
+                    local args = {
+                        Attacking = enemy
+                    }
+                    local remote = game:GetService("ReplicatedStorage").PlayerTurnInput
+                    remote:InvokeServer(attackType, attackName, args)
+                    print("[EXPLOIT] Auto-Attacked:", enemy.Name)
+                end
+            end
+        end)
+        wait(0.1)
+    end
+end
+
+------------------------------------------------------
+
+-- /////////////// TAB COMBAT ////////////////////////
+
+local MainTab = Window:CreateTab("GELUT", nil) -- Title, Image
+local MainSection = MainTab:CreateSection("Main")
+
+------------------------------------------------------ Auto Dodge
+
+local Toggle = MainTab:CreateToggle({
+    Name = "Auto Dodge",
+    CurrentValue = false,
+    Flag = "ToggleAD", -- Identifier unik untuk config
+    Callback = function(Value)
+        _G.AutoDodge = Value
+        if Value then
+            task.spawn(function()
+                while _G.AutoDodge do
+                    task.spawn(autoDodgeLoop)
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+------------------------------------------------------ Auto Attack
+
+local Toggle = MainTab:CreateToggle({
+    Name = "Auto Attack",
+    CurrentValue = false,
+    Flag = "ToggleATK", -- Identifier unik untuk config
+    Callback = function(Value)
+        _G.AutoAttack = Value
+        if Value then
+            task.spawn(function()
+                while _G.AutoAttack do
+                    task.spawn(autoAttackLoop)
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+-------------------------------------------------------
+
+local Toggle = MainTab:CreateToggle({
+    Name = "Anti-AFK",
+    CurrentValue = false,
+    Flag = "ToggleAA", -- Identifier unik untuk config
+    Callback = function(Value)
+        _G.AntiAFK = Value
+        if Value then
+            if _G.afkConnection then
+                _G.afkConnection:Disconnect()
+            end
+            _G.afkConnection = game.Players.LocalPlayer.Idled:Connect(function()
+                local vu = game:GetService("VirtualUser")
+                vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+                task.wait(1)
+                vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+                print("Anti-AFK active")
+            end)
+        else
+            if _G.afkConnection then
+                _G.afkConnection:Disconnect()
+                print("Anti-AFK disabled")
+            end
+        end
+    end
+})
+
+-- /////////////////// TAB MOVEMENT /////////////////////
+local MainTab = Window:CreateTab("DEWA", nil) -- Title, Image
+
+-------------------------------------------------------
+
+local MainSection = MainTab:CreateSection("NGAPUNG")
+
+------------------------------------------------------- Toggle FLY
+
+local Toggle = MainTab:CreateToggle({
+    Name = "Toggle Fly",
+    CurrentValue = false,
+    Flag = "ToggleFly", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        -- FUNGSI UNTUK TOGGLE FLY
+    end
+})
+
+------------------------------------------------------- Slider Flyspeed
+
+local Slider = MainTab:CreateSlider({
+    Name = "Flyspeed",
+    Range = {1, 350},
+    Increment = 1,
+    Suffix = "",
+    CurrentValue = 16,
+    Flag = "sliderFS", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        -- FUNGSI UNTUK FLY SPEED
+    end
+})
+
+------------------------------------------------------ Keybind Fly
+
+local UserInputService = game:GetService("UserInputService")
+local keybindFly = nil
+
+local Input = MainTab:CreateInput({
+    Name = "Keybind Fly",
+    CurrentValue = "",
+    PlaceholderText = "...",
+    RemoveTextAfterFocusLost = false,
+    Flag = "KeybindFly",
+    Callback = function(Text)
+        if #Text > 1 then
+            Text = string.sub(Text, 1, 1)
+            Input:Set(Text)
+        end
+        keybind = Text:upper()
+    end
+})
+
+-- Deteksi tombol ditekan
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then
+        return
+    end
+    if keybindFly and input.KeyCode.Name == keybindFly then
+        -- Masukkan fungsi toggle fly kamu di sini
+    end
+end)
+
+-------------------------------------------------------
+
+local Section = MainTab:CreateSection("NGACRIT")
+
+------------------------------------------------------- Toggle Speed
+
+local Toggle = MainTab:CreateToggle({
+    Name = "Toggle Speed",
+    CurrentValue = false,
+    Flag = "ToggleSpeed", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        -- FUNGSI UNTUK TOGGLE FLY
+    end
+})
+
+------------------------------------------------------- Slider Speed
+
+local Slider = MainTab:CreateSlider({
+    Name = "WalkSpeed",
+    Range = {1, 350},
+    Increment = 1,
+    Suffix = "",
+    CurrentValue = 16,
+    Flag = "sliderWS", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        -- FUNGSI UNTUK FLY SPEED
+    end
+})
+
+-------------------------------------------------- Keybind Speed
+
+local UserInputService = game:GetService("UserInputService")
+local keybindSpeed = nil
+
+local Input = MainTab:CreateInput({
+    Name = "Keybind Speed",
+    CurrentValue = "",
+    PlaceholderText = "...",
+    RemoveTextAfterFocusLost = false,
+    Flag = "KeybindSpeed",
+    Callback = function(Text)
+        if #Text > 1 then
+            Text = string.sub(Text, 1, 1)
+            Input:Set(Text)
+        end
+        keybindSpeed = Text:upper()
+    end
+})
+
+-- Deteksi tombol ditekan
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then
+        return
+    end
+    if keybind and input.KeyCode.Name == keybindSpeed then
+        -- Masukkan fungsi toggle fly kamu di sini
+    end
+end)
+
+----------------------------------------------------
+
+local Section = MainTab:CreateSection("JURIG")
+
+---------------------------------------------------- Toggle NoClip
+
+local Toggle = MainTab:CreateToggle({
+    Name = "Toggle No Clip",
+    CurrentValue = false,
+    Flag = "ToggleNoClip", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Callback = function(Value)
+        -- FUNGSI UNTUK TOGGLE NC
+    end
+})
+
+----------------------------------------------------
+
+local UserInputService = game:GetService("UserInputService")
+local keybindNoClip = nil
+
+local Input = MainTab:CreateInput({
+    Name = "Keybind NoClip",
+    CurrentValue = "",
+    PlaceholderText = "...",
+    RemoveTextAfterFocusLost = false,
+    Flag = "KeybindNoClip",
+    Callback = function(Text)
+        if #Text > 1 then
+            Text = string.sub(Text, 1, 1)
+            Input:Set(Text)
+        end
+        keybindNoClip = Text:upper()
+    end
+})
+
+----------------------------------------------------
